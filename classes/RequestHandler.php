@@ -1,5 +1,6 @@
 <?php
 
+	require_once __DIR__ . "/ViewSettings.php";
 	require_once __DIR__ . "/Router.php";
 
 	use Swoole\Http\Request;
@@ -9,6 +10,9 @@
 
 		/**
 		* Processes and routes a Swoole request
+		* @param ViewSettings $viewSettings
+		* @param Router $router
+		* @param Swoole\Http\Request $request
 		* @param Swoole\Http\Request $request
 		* @param Swoole\Http\Response $response
 		*/
