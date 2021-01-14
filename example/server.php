@@ -3,11 +3,18 @@
 	require_once __DIR__ . "/../classes/ViewSettings.php";
 	require_once __DIR__ . "/../classes/ControllerBase.php";
 	require_once __DIR__ . "/../classes/RequestHandler.php";
+	require_once __DIR__ . "/../classes/StaticFileHandler.php";
 	require_once __DIR__ . "/../classes/Router.php";
 
 	use Swoole\Http\Server;
 	use Swoole\Http\Request;
 	use Swoole\Http\Response;
+
+	/**
+	* Set up the directory for static file serving
+	*/
+	$staticFileHandler = new StaticFileHandler;
+	$staticFileHandler->setStaticFilesDirectory(__DIR__ . "/static");
 
 	/**
 	* Set the views folder where Controllers
@@ -31,8 +38,8 @@
 	*/
 	$server = new Swoole\HTTP\Server("0.0.0.0", 9501, SWOOLE_PROCESS, SWOOLE_SOCK_TCP | SWOOLE_SSL);
 	$server->set([
-		"ssl_cert_file" => __DIR__ . "/../../../etc/letsencrypt/live/keystone.footbridgemobile.com/cert.pem",
-		"ssl_key_file" => __DIR__ . "/../../../etc/letsencrypt/live/keystone.footbridgemobile.com/privkey.pem",
+		"ssl_cert_file" => __DIR__ . "cert.pem",
+		"ssl_key_file" => __DIR__ . "privkey.pem",
 		"open_http2_protocol" => true,
 	]);
 
@@ -47,8 +54,8 @@
 	* When a request comes in. Could be for a route or a static file.
 	* RequestHandler will process all of this for us.
 	*/
-	$server->on("request", function (Request $request, Response $response) use ($router) {
-		RequestHandler::process($router, $request, $response);
+	$server->on("request", function (Request $request, Response $response) use ($router, $staticFileHandler) {
+		RequestHandler::process($router, $staticFileHandler, $request, $response);
 	});
 
 	$server->start();
