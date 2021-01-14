@@ -16,20 +16,43 @@
 		* @param Swoole\Http\Request $request
 		* @param Swoole\Http\Response $response
 		*/
-		public static function process(Router $router, Request $request, Response $response){
+		public static function process(Router $router, StaticFileHandler $staticFileHandler, Request $request, Response $response){
 			$serverData = $request->server;
 			$requestURI = $serverData['request_uri'];
 			$clientIP = $serverData['remote_addr'];
 			$requestType = $serverData['request_method'];
 
 			if ($requestType === "GET"){
-				$viewResponse = $router->route($requestURI, $request, $response);
-				if ($viewResponse !== null){
-					$response->end($viewResponse);
+
+				// Check for a static file
+				if ($staticFileHandler->doesStaticFileExist($requestURI)){
+					$mimeType = $staticFileHandler->getStaticFileMime($requestURI);
+					if ($mimeType === null){
+						$mimeType = "text/plain";
+					}
+
+					$response->header("content-type", $mimeType);
+					$channel = new Swoole\Coroutine\Channel(1);
+					$staticFileHandler->getStaticFileContents($requestURI, $channel);
+
+					// Start the async function
+					go(function() use ($channel, $response){
+						// pop() will wait until something is on the coroutine stack
+						// which will be whenever file contents are done being read
+						// it holds this coroutine until the $channel gets something
+						// pushed to it.
+						$fileContents = $channel->pop();
+						$response->end($fileContents);
+					});
+					
 				}else{
-					// TODO
-					// Static file?
-					$response->end("404\n");
+					$viewResponse = $router->route($requestURI, $request, $response);
+					if ($viewResponse !== null){
+						$response->end($viewResponse);
+					}else{
+						// Not found
+						$response->end("404\n");
+					}
 				}
 			}elseif ($requestType === "POST"){
 
