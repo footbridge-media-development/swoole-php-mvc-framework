@@ -46,7 +46,7 @@
 					});
 
 				}else{
-					$viewResponse = $router->route($requestURI, $request, $response);
+					$viewResponse = $router->route($requestType, $requestURI, $request, $response);
 					if ($viewResponse !== null){
 						$response->end($viewResponse);
 					}else{
