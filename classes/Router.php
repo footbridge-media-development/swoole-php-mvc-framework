@@ -33,7 +33,7 @@
 				require($controllerPath);
 				$classReflector = new \ReflectionClass($className);
 				$controllerMethods = $classReflector->getMethods(ReflectionMethod::IS_PUBLIC);
-				$this->routableMethods[] = [new $className(), $controllerMethods];
+				$this->routableMethods[] = [new $className($viewSettings), $controllerMethods];
 			}
 		}
 
