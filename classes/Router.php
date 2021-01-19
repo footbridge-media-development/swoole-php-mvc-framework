@@ -48,16 +48,11 @@
 					$attributes = $method->getAttributes();
 					foreach ($attributes as $attribute){
 						$attrName = $attribute->getName();
-						var_dump($attrName);
 						if ($attrName === "Route"){
 							$arguments = $attribute->getArguments();
-							var_dump($arguments);
-							var_dump($method);
 							if (strtolower($arguments[0]) === strtolower($requestMethod)){
-								var_dump($uri);
 								if ($arguments[1] === $uri){
-									print("Method passed");
-									$method->invoke($classInstance, $request, $response);
+									return $method->invoke($classInstance, $request, $response);
 								}
 							}
 						}
