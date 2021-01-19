@@ -7,6 +7,9 @@
 		private $controllersFolder = "";
 		private $controllers = [];
 
+		/** @property ReflectionMethod[] $routableMethods */
+		public $routableMethods = [];
+
 		/**
 		* Sets the controllers folder
 		*/
@@ -28,20 +31,33 @@
 				// The class name _must_ be the file name minus the extension
 				$className = pathinfo($controllerFileName, PATHINFO_FILENAME);
 				require($controllerPath);
-				$thisController = new $className($viewSettings);
-				$this->controllers[] = $thisController;
+				$classReflector = new \ReflectionClass($className);
+				$controllerMethods = $classReflector->getMethods(ReflectionMethod::IS_PUBLIC);
+				$this->routableMethods[] = [new $className(), $controllerMethods];
 			}
 		}
 
 		/**
 		* @return string|null
 		*/
-		public function route(string $uri, Request $request, Response $response){
-			foreach ($this->controllers as $controller){
-				$routes = $controller->routes;
-				foreach ($routes as $route){
-					if ($uri === $route){
-						return $controller->getResult($request, $response);
+		public function route(string $method, string $uri, Request $request, Response $response){
+			foreach ($this->routableMethods as $methodData){
+				$classInstance = $methodData[0];
+				$methods = $methodData[1];
+				foreach($methods as $method){
+					$attributes = $method->getAttributes();
+					foreach ($attributes as $attribute){
+						$attrName = $attribute->getName();
+						print($attrName);
+						if ($attrName === "Route"){
+							$arguments = $attribute->getArguments();
+							if (strtolower($arguments[0]) === strtolower($method)){
+								if ($arguments[1] === $uri){
+									print("Method passed");
+									$method->invoke($classInstance, $request, $response);
+								}
+							}
+						}
 					}
 				}
 			}

@@ -44,7 +44,7 @@
 						$fileContents = $channel->pop();
 						$response->end($fileContents);
 					});
-					
+
 				}else{
 					$viewResponse = $router->route($requestURI, $request, $response);
 					if ($viewResponse !== null){
