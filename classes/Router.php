@@ -40,7 +40,7 @@
 		/**
 		* @return string|null
 		*/
-		public function route(string $method, string $uri, Request $request, Response $response){
+		public function route(string $requestMethod, string $uri, Request $request, Response $response){
 			foreach ($this->routableMethods as $methodData){
 				$classInstance = $methodData[0];
 				$methods = $methodData[1];
@@ -53,7 +53,7 @@
 							$arguments = $attribute->getArguments();
 							var_dump($arguments);
 							var_dump($method);
-							if (strtolower($arguments[0]) === strtolower($method)){
+							if (strtolower($arguments[0]) === strtolower($requestMethod)){
 								var_dump($uri);
 								if ($arguments[1] === $uri){
 									print("Method passed");
