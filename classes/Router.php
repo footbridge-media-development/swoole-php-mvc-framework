@@ -41,17 +41,35 @@
 		* @return string|null
 		*/
 		public function route(string $requestMethod, string $uri, Request $request, Response $response){
+
+			// Go through all the methods collected from the controller classes
 			foreach ($this->routableMethods as $methodData){
 				$classInstance = $methodData[0];
 				$methods = $methodData[1];
+
+				// Loop through the methods
 				foreach($methods as $method){
+
+					// Get the attributes (if any) of the method
 					$attributes = $method->getAttributes();
+
+					// Loop through any and all attributes
 					foreach ($attributes as $attribute){
 						$attrName = $attribute->getName();
+
+						// Check if this attribute name is "Route"
 						if ($attrName === "Route"){
 							$arguments = $attribute->getArguments();
+
+							// Check if the first argument (request method arg)
+							// matches the server request method
 							if (strtolower($arguments[0]) === strtolower($requestMethod)){
+
+								// Check if the second argument (URI) for this method's route
+								// matches the server request URI
 								if ($arguments[1] === $uri){
+
+									// Invoke the method (ReflectionMethod::invoke)
 									return $method->invoke($classInstance, $request, $response);
 								}
 							}
