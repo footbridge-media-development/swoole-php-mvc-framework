@@ -52,6 +52,7 @@
 						if ($attrName === "Route"){
 							$arguments = $attribute->getArguments();
 							var_dump($arguments);
+							var_dump($method);
 							if (strtolower($arguments[0]) === strtolower($method)){
 								var_dump($uri);
 								if ($arguments[1] === $uri){
