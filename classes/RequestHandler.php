@@ -45,17 +45,17 @@
 						$response->end($fileContents);
 					});
 
-				}else{
-					$viewResponse = $router->route($requestType, $requestURI, $request, $response);
-					if ($viewResponse !== null){
-						$response->end($viewResponse);
-					}else{
-						// Not found
-						$response->end("404\n");
-					}
+					return;
 				}
-			}elseif ($requestType === "POST"){
+			}
 
+			// If the code made it here, just attempt to route it
+			$viewResponse = $router->route($requestType, $requestURI, $request, $response);
+			if ($viewResponse !== null){
+				$response->end($viewResponse);
+			}else{
+				// Not found
+				$response->end("404\n");
 			}
 		}
 
