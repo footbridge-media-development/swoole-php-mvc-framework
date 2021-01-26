@@ -9,7 +9,7 @@
 			"gif" => "image/gif",
 			"weba" => "audio/webm",
 			"webm" => "video/webm",
-			"webp" => "image/webpwebm",
+			"webp" => "image/webp",
 			"pdf" => "application/pdf",
 			"svg" => "image/svg+xml",
 			"png" => "image/png",
