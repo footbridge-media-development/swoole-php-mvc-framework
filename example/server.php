@@ -15,6 +15,7 @@
 	*/
 	$staticFileHandler = new StaticFileHandler;
 	$staticFileHandler->setStaticFilesDirectory(__DIR__ . "/static");
+	$staticFileHandler->setCacheConfig(__DIR__ . "/cache.json");
 
 	/**
 	* Set the views folder where Controllers
