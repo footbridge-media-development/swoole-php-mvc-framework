@@ -31,6 +31,15 @@
 						$mimeType = "text/plain";
 					}
 
+					/**
+					* Set the cache-control header if there is a cache config for
+					* the given mime type
+					*/
+					$cacheTime = $staticFileHandler->getCacheTimeForMime($mimeType);
+					if ($cacheTime !== null){
+						$response->header("cache-control", sprintf("max-age=%d", $cacheTime));
+					}
+
 					$response->header("content-type", $mimeType);
 					$channel = new Swoole\Coroutine\Channel(1);
 					$staticFileHandler->getStaticFileContents($requestURI, $channel);
