@@ -1,19 +1,18 @@
 <?php
 
-	require_once __DIR__ . "/../classes/ControllerBase.php";
-	require_once __DIR__ . "/../classes/FileBuffer.php";
+	require_once __DIR__ . "/../../classes/ControllerBase.php";
+	require_once __DIR__ . "/../../classes/RenderEngine/Renderer.php";
 
 	use Swoole\Http\Request;
 	use Swoole\Http\Response;
 
 	class HomeController extends ControllerBase{
 
-		private $viewName = "home.php";
-
 		/**
 		* @param ViewSettings $viewSettings
 		*/
 		public function __construct($viewSettings){
+			$this->viewSettings = $viewSettings;
 			parent::__construct($viewSettings);
 		}
 
@@ -23,12 +22,12 @@
 		* @return string
 		*/
 		#[Route("GET", "/")]
-		public function getResult(Request $request, Response $response){
+		public function homePage(Request $request, Response $response, Swoole\Coroutine\Channel $routerChannel){
 			$response->header("content-type", "text/html");
-			$buffer = new FileBuffer($this->getViewFilePath($this->viewName));
-			$buffer->buffer();
 
-			return $buffer->getResult();
+			// Get the view file
+			$renderer = new RenderEngine\Renderer($this->getViewFilePath("home.php"), $this->viewSettings->viewsFolder);
+			$renderer->renderViewFile($routerChannel);
 		}
 
 	}
