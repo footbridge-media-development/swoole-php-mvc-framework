@@ -40,7 +40,7 @@
 		/**
 		* @return string|null
 		*/
-		public function route(string $requestMethod, string $uri, Request $request, Response $response){
+		public function route(string $requestMethod, string $uri, Request $request, Response $response, Swoole\Coroutine\Channel $channel){
 
 			// Go through all the methods collected from the controller classes
 			foreach ($this->routableMethods as $methodData){
@@ -70,12 +70,15 @@
 								if ($arguments[1] === $uri){
 
 									// Invoke the method (ReflectionMethod::invoke)
-									return $method->invoke($classInstance, $request, $response);
+									$method->invoke($classInstance, $request, $response, $channel);
+									return;
 								}
 							}
 						}
 					}
 				}
 			}
+
+			$channel->push(null);
 		}
 	}

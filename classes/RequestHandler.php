@@ -59,13 +59,18 @@
 			}
 
 			// If the code made it here, just attempt to route it
-			$viewResponse = $router->route($requestType, $requestURI, $request, $response);
-			if ($viewResponse !== null){
-				$response->end($viewResponse);
-			}else{
-				// Not found
-				$response->end("404\n");
-			}
+			$routerChannel = new Swoole\Coroutine\Channel(1);
+			go(function() use ($routerChannel, $response){
+				$viewResponse = $routerChannel->pop();
+				if ($viewResponse !== null){
+					$response->end($viewResponse);
+				}else{
+					// Not found
+					$response->end("404\n");
+				}
+			});
+
+			$router->route($requestType, $requestURI, $request, $response, $routerChannel);
 		}
 
 	}
