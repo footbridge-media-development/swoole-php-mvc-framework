@@ -9,7 +9,7 @@
 		* @param string $method The HTTP method for this route
 		* @param string $uri The URI this route will match
 		*/
-		public function construct(string $method, string $uri){
+		public function __construct(string $method, string $uri, bool $isRegex = false){
 			$this->method = $method;
 			$this->uri = $uri;
 		}
