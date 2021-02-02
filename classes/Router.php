@@ -1,4 +1,6 @@
 <?php
+	require_once __DIR__ . "/../attributes/Route.php";
+
 	use Swoole\Http\Request;
 	use Swoole\Http\Response;
 
@@ -59,21 +61,42 @@
 
 						// Check if this attribute name is "Route"
 						if ($attrName === "Route"){
-							$arguments = $attribute->getArguments();
+							$routeAttribute = $attribute->newInstance();
 
 							// Check if the first argument (request method arg)
 							// matches the server request method
-							if (strtolower($arguments[0]) === strtolower($requestMethod)){
+							if (strtolower($routeAttribute->method) === strtolower($requestMethod)){
 
-								// Check if the second argument (URI) for this method's route
-								// matches the server request URI
-								if ($arguments[1] === $uri){
+								// Is the route a regular expression?
+								if ($routeAttribute->isRegex === false){
+									// No, it is a plain string match
+									if ($routeAttribute->uri === $uri){
 
-									// Invoke the method (ReflectionMethod::invoke)
-									$method->invoke($classInstance, $request, $response, $channel);
-									return;
+										// Invoke the method (ReflectionMethod::invoke)
+										$method->invoke($classInstance, $request, $response, $channel);
+										return;
+									}
+								}else{
+									// Yes, it needs to be matched against the URI
+									$didMatch = preg_match_all($routeAttribute->uri, $uri, $matches);
+									if ($didMatch === 1){
+										// Add the matches to the requests GET array
+										foreach ($matches as $name=>$match){
+											if (is_string($name)){
+												if (isset($match[0])){
+													$request->get[$name] = $match[0];
+												}
+											}
+										}
+
+										// Invoke the method (ReflectionMethod::invoke)
+										$method->invoke($classInstance, $request, $response, $channel);
+										return;
+									}
 								}
 							}
+
+							unset($routeAttribute);
 						}
 					}
 				}
